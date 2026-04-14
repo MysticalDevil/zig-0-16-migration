@@ -1,5 +1,7 @@
 # zig-0-16-migration
 
+![Zig](https://img.shields.io/badge/Zig-0.16.0-F7A41D?logo=zig&logoColor=white) ![Kimi](https://img.shields.io/badge/Kimi-Code%20CLI-4D6BFF?logoColor=white) ![Claude Code](https://img.shields.io/badge/Claude%20Code-Enabled-D4A574?logo=anthropic&logoColor=white) ![Codex](https://img.shields.io/badge/Codex-OpenAI-10A37F?logo=openai&logoColor=white) ![OpenCode](https://img.shields.io/badge/OpenCode-Supported-6366F1?logoColor=white)
+
 用于 Zig 0.16.0 迁移的 Kimi skill。
 
 ## 内容说明
