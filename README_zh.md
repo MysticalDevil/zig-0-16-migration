@@ -11,7 +11,9 @@
 
 ## 使用方法
 
-[Kimi Code CLI](https://kimi.moonshot.cn/) 用户可将 `.skill` 文件放入 skills 目录，或直接将解压后的目录放到 `~/.config/agents/skills/` 下使用。
+兼容 [Kimi Code CLI](https://kimi.moonshot.cn/)、[Claude Code](https://claude.ai/)、[Codex](https://openai.com/codex)、[OpenCode](https://opencode.ai/) 等支持 skill 目录的主流 AI 编程工具。
+
+将 `.skill` 文件放入 skills 目录，或直接将解压后的目录放到 `~/.config/agents/skills/`（或对应工具的等价路径）下即可使用。
 
 ## 许可证
 

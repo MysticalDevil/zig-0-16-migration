@@ -11,7 +11,9 @@ A Kimi skill for Zig 0.16.0 migration.
 
 ## Usage
 
-For [Kimi Code CLI](https://kimi.moonshot.cn/) users, place the `.skill` file into your skills directory, or unpack the directory directly into `~/.config/agents/skills/`.
+Compatible with [Kimi Code CLI](https://kimi.moonshot.cn/), [Claude Code](https://claude.ai/), [Codex](https://openai.com/codex), [OpenCode](https://opencode.ai/), and other mainstream AI coding tools that support skill directories.
+
+Place the `.skill` file into your skills directory, or unpack the directory directly into `~/.config/agents/skills/` (or the equivalent skills path for your tool).
 
 ## License
 
