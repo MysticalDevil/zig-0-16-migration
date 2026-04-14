@@ -601,8 +601,4 @@ pub fn build(b: *std.Build) void {
 - 精确 API 替换字典
 - 完整迁移手册
 
-后续如果要继续细化，下一步最有价值的是补一份：
-- 0.15 -> 0.16 API 对照表
-- build.zig 迁移要点
-- `std.Io` 迁移样例
-- `@Type` 替换样例
+

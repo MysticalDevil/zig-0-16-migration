@@ -608,8 +608,4 @@ Not recommended as:
 - Precise API replacement dictionary
 - Complete migration manual
 
-If you want to go deeper, the next most valuable additions would be:
-- 0.15 -> 0.16 API mapping table
-- build.zig migration highlights
-- `std.Io` migration examples
-- `@Type` replacement examples
+
