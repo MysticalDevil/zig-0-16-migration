@@ -10,6 +10,7 @@ description: Provide structured, engineering-focused guidance for Zig 0.16.0 rel
 Reorganize the official Zig 0.16.0 release notes into a structured document for engineering review, upgrade evaluation, and team alignment.
 
 Applicable scenarios:
+
 - Evaluating whether to upgrade to 0.16
 - Quickly grasping the most important breaking changes
 - Aligning on std, build system, compiler, linker, and toolchain changes
@@ -22,14 +23,17 @@ Applicable scenarios:
 Zig 0.16.0 is not an ordinary incremental release; it is a significant architectural consolidation release.
 
 The core themes of this version are:
+
 - `std.Io` rises as the unified interface
-- A batch of language semantics are tightened or historical baggage is removed
+- A batch of language semantics are tightened or legacy designs are cleaned up
 - Standard library mid-level abstractions continue to be cleaned up
 - Incremental compilation, linker, fuzzer, and target support continue advancing toward the 1.0 shape
 
 One-sentence verdict:
 
-**0.16.0 is important, but not a "stability finalization" release; it is more like a large-scale technical-debt refactor heading toward 1.0.**
+### One-sentence verdict
+
+0.16.0 is important, but not a "final stable release"; it is more like a large-scale technical-debt cleanup and refactor heading toward 1.0.
 
 ---
 
@@ -50,6 +54,7 @@ One-sentence verdict:
 The biggest change in 0.16 is not a builtin, but `std.Io`.
 
 Impact scope:
+
 - Future
 - Group
 - Cancelation
@@ -63,6 +68,7 @@ Impact scope:
 - `std.posix` / `std.os.windows` cleanup
 
 Engineering implications:
+
 - I/O, concurrency, cancellation, synchronization, process, and system interfaces begin to be modeled uniformly
 - The old default path of "threads + blocking + some global state" is gradually being weakened
 - Subsequent std APIs will continue to be reshaped around this theme
@@ -242,6 +248,7 @@ pub fn build(b: *std.Build) void {
 ```
 
 `linkSystemLibrary` does two things at once:
+
 1. Links the system library to `t.mod` (equivalent to `t.mod.linkSystemLibrary`)
 2. Automatically exposes the corresponding include path to translate-c via `pkg-config` (equivalent to `t.run.addArgs(...)`)
 
@@ -277,6 +284,7 @@ pub fn build(b: *std.Build) void {
 `@Type` is replaced by independent type-creating builtins.
 
 Engineering implications:
+
 - Metaprogramming code needs migration
 - Semantics are more direct, readability and spec-ability improve
 - Helps compiler internal type resolution and error reporting
@@ -284,15 +292,18 @@ Engineering implications:
 ### 4. Pointer, packed/extern Semantics Continue to Tighten
 
 Typical changes:
+
 - Explicitly-aligned pointer types and naturally-aligned pointer types are no longer considered the same type
 - Legal representations of packed union / packed struct are further tightened
 - Extern context tolerance for implicit backing types is reduced
 
 Experimentally verified details:
+
 - `extern enum(u8) { ... }` syntax is now directly forbidden (compiler error: `enums do not support 'packed' or 'extern'; instead provide an explicit integer tag type`). When using an enum inside an extern struct with an explicit tag type, write `e: enum(u8) { a, b }`, not `extern enum(u8)`.
 - Packed unions forbid pointer fields, but full semantic analysis only triggers when you actually instantiate the type (error: `packed unions cannot contain fields of type '*u8'`).
 
 Engineering implications:
+
 - Some code that compiled before but had ambiguous semantics will now be rejected
 - Low-level layout code, FFI, serialization/deserialization code needs careful review
 
@@ -301,6 +312,7 @@ Engineering implications:
 Officially listed as `Simplified Dependency Loop Rules`.
 
 Engineering implications:
+
 - Dependencies between types and declarations are easier to infer
 - Errors are closer to the real problem instead of being distorted by old rules
 - Some edge-case patterns may need refactoring
@@ -308,12 +320,14 @@ Engineering implications:
 ### 6. Standard Library Mid-Level APIs Continue to Be Deleted or Lowered
 
 Typical changes:
+
 - `std.posix` / `std.os.windows` mid-level abstractions continue to be removed
 - `Thread.Pool` deleted
 - `heap.ThreadSafeAllocator` deleted
 - Directory, path, process, memory protection, container APIs have multiple renames or migrations
 
 Experimentally verified deletions:
+
 - `Thread.Pool` (compiler error: `has no member named 'Pool'`)
 - `heap.ThreadSafeAllocator` (compiler error: `has no member named 'ThreadSafeAllocator'`)
 - `builtin.subsystem` (compiler error: `has no member named 'subsystem'`)
@@ -321,12 +335,14 @@ Experimentally verified deletions:
 - `GenericReader` / `AnyReader` / `FixedBufferStream` deleted along with the `std.io` namespace removal
 
 Engineering implications:
+
 - In 0.15 code, the most common compilation failures are usually not language syntax but std API changes
 - Migration should start with an API inventory, then replacements
 
 ### 7. Compiler and Incremental Compilation Continue to Become More Practical
 
 Officially highlighted:
+
 - C Translation
 - Reworked Type Resolution
 - Incremental Compilation
@@ -334,6 +350,7 @@ Officially highlighted:
 - Improved loop safety check code generation
 
 Engineering implications:
+
 - 0.16 changes are not only language/library; compiler internals are also changing
 - For large projects and edit-compile cycles, this matters more than individual syntax features
 
@@ -342,6 +359,7 @@ Engineering implications:
 Officially highlighted `New ELF Linker`.
 
 Engineering implications:
+
 - This is a key component for subsequent incremental build experience
 - But it is still an evolving capability; do not assume it has fully replaced the old path
 
@@ -358,7 +376,7 @@ The following items should be scanned first during an upgrade:
 - Small integer to float coercion changes
 - Runtime vector index forbidden (only triggers in true runtime contexts, e.g. function parameters; a simple `var i` in a test block may be constant-folded to comptime-known and not error)
 - Vector/array no longer support in-memory coercion (mainly affects `@ptrCast` conversions and error-union wrapping scenarios)
-- Returning trivial local address from functions forbidden
+- Returning pointers to local variables from functions is forbidden
 - Unary float builtins forward result type
 - `@floor/@ceil/@round/@trunc` conversion to integers
 - Packed union unused-bit / pointer restrictions
@@ -371,6 +389,7 @@ The following items should be scanned first during an upgrade:
 - Zero-bit tuple fields no longer implicitly `comptime`
 
 Recommended approach:
+
 - Project-wide grep `@Type`
 - Project-wide grep `@cImport`
 - Project-wide grep packed / extern / align / vector related low-level code
@@ -383,6 +402,7 @@ Recommended approach:
 ### I/O / Concurrency / System Interfaces
 
 Key focus areas:
+
 - `std.Io`
 - `Future`
 - `Group`
@@ -405,7 +425,7 @@ Key focus areas:
 ### Naming / Behavior Adjustments
 
 - `Environment Variables and Process Arguments Become Non-Global`
-- `Juicy Main`
+- `Juicy Main` (official term for the enhanced main entrypoint)
 - `mem` introduces cut; `index of` renamed to `find`
 - Selective directory tree walking
 - Windows path behavior adjustments
@@ -419,6 +439,17 @@ Key focus areas:
 - New Deflate compression, simplified decompression
 - `std.crypto` adds AES-SIV / AES-GCM-SIV
 - `std.crypto` adds Ascon-AEAD / Ascon-Hash / Ascon-CHash
+
+---
+
+## Further Migration References
+
+The following experimentally verified materials are available in the `references/` directory:
+
+- **[API Mapping Table](references/api-mapping.md)** — Complete 0.15 -> 0.16 API mapping, including std removals, Build System APIs, and language builtins
+- **[build.zig Migration Highlights](references/build-zig-migration.md)** — Signature changes and verified examples for `addExecutable`, `addModule`, `linkLibC`, `addTest`, and `addTranslateC`
+- **[std.Io Migration Examples](references/std-io-migration.md)** — Full migration code for file I/O, process, sync primitives, time/random (includes compilable `std.Io` examples)
+- **[@Type Replacement Examples](references/type-builtin-migration.md)** — Complete mapping table for the 8 new builtins with verified test code
 
 ---
 
@@ -477,7 +508,7 @@ Key focus areas:
 ### Toolchain
 
 - LLVM 21
-    - Loop vectorization disabled to work around regression
+  - Loop vectorization disabled to work around regression
 - musl 1.2.5
 - glibc 2.43
 - Linux 6.19 headers
@@ -490,6 +521,7 @@ Key focus areas:
 - Support dynamically-linked OpenBSD libc when cross-compiling
 
 Engineering assessment:
+
 - 0.16 has real impact on toolchain versions and backend behavior
 - You cannot just test "does it compile"; you must also test codegen, linking, debug info, and platform behavior
 
@@ -498,6 +530,7 @@ Engineering assessment:
 ## Target Support Changes
 
 Highlights:
+
 - `aarch64-freebsd`, `aarch64-netbsd`, `loongarch64-linux`, `powerpc64le-linux`, `s390x-linux`, `x86_64-freebsd`, `x86_64-netbsd`, `x86_64-openbsd` are now tested natively in Zig's CI
 - Added `aarch64-maccatalyst` / `x86_64-maccatalyst` cross-compilation support
 - Added initial `loongarch32-linux`
@@ -507,6 +540,7 @@ Highlights:
 - Various bug fixes on big-endian and weakly-ordered platforms
 
 Engineering implications:
+
 - 0.16 continues expanding target coverage
 - But "supported" does not mean "all layers are mature"; still check tier, backend, libc, and CI status
 
@@ -516,9 +550,10 @@ Engineering implications:
 
 The official release notes explicitly wrote under bug fixes:
 
-**This Release Contains Bugs**
+### This Release Contains Bugs
 
 This means:
+
 - Do not treat 0.16 as a "passes compilation, so it's safe for production" release
 - For non-trivial projects, perform behavioral testing, platform testing, and performance testing before upgrading
 - Low-level system interfaces, concurrency, linking, debug info, and cross-target paths need focused validation
@@ -530,6 +565,7 @@ This means:
 ### Phase 1: Static Inventory
 
 Suggested greps:
+
 - `@Type`
 - `@cImport`
 - `Thread.Pool`
@@ -547,6 +583,7 @@ Suggested greps:
 ### Phase 2: Fix Language-Level Breaking Changes First
 
 Fix these first:
+
 - `@Type`
 - packed/extern/layout
 - pointer alignment
@@ -558,6 +595,7 @@ Until you get a clean compile.
 ### Phase 3: Fix std API Migrations
 
 Key migrations:
+
 - I/O
 - process
 - directory/path
@@ -568,6 +606,7 @@ Key migrations:
 ### Phase 4: Add Behavioral Validation
 
 At least cover:
+
 - File I/O
 - Network I/O
 - Child processes
@@ -580,6 +619,7 @@ At least cover:
 ### Phase 5: Add Performance and Toolchain Validation
 
 Focus on:
+
 - Has incremental compilation improved?
 - Does the new linker affect your workflow?
 - Does LLVM 21 and disabled loop vectorization affect hot code?
@@ -591,21 +631,21 @@ Focus on:
 
 Can be sent directly to the team:
 
-> The core of Zig 0.16.0 is not a single new syntax, but an architectural adjustment driven by `std.Io`; language, standard library, build system, compiler, linker, fuzzer, and toolchain all have significant migration surface. Upgrade benefits are large, but breaking surface is also large. Recommend starting with an API inventory, then migrating layer by layer (language, std, behavior, performance). Not recommended to blindly switch production branches all at once.
+> The core of Zig 0.16.0 is not a single new syntax, but an architectural adjustment driven by `std.Io`; language, standard library, build system, compiler, linker, fuzzer, and toolchain all have significant migration surface. Upgrade benefits are large, but the incompatible change surface is also large. Recommend starting with an API inventory, then migrating layer by layer (language, std, behavior, performance). Not recommended to blindly switch production branches all at once.
 
 ---
 
-## Source of Truth
+## References
 
 This skill is compiled from the official Zig 0.16.0 release notes and download page.
 
 Recommended use:
+
 - Structured index for reading release notes
 - Upgrade review checklist
 - Team alignment material
 
 Not recommended as:
+
 - Precise API replacement dictionary
 - Complete migration manual
-
-

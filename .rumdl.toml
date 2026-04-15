@@ -1,0 +1,17 @@
+# rumdl configuration file
+
+[global]
+disable = ["MD013"]
+
+exclude = [
+    ".git",
+    ".github",
+    "node_modules",
+    "vendor",
+    "dist",
+    "build",
+    "CHANGELOG.md",
+    "LICENSE.md",
+]
+
+respect-gitignore = true

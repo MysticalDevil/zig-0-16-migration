@@ -10,6 +10,7 @@ description: Provide structured, engineering-focused guidance for Zig 0.16.0 rel
 将 Zig 0.16.0 官方 release notes 重组为便于工程阅读、升级评估、团队同步的结构化文档。
 
 适用场景：
+
 - 评估是否升级到 0.16
 - 快速掌握本版最重要的 breaking changes
 - 对齐 std、build system、compiler、linker、toolchain 变化
@@ -19,17 +20,20 @@ description: Provide structured, engineering-focused guidance for Zig 0.16.0 rel
 
 ## Executive Summary
 
-Zig 0.16.0 不是普通增量版，而是一次明显的架构收口版本。
+Zig 0.16.0 不是普通增量版，而是一次明显的架构整合版本。
 
 本版最核心的主线是：
+
 - `std.Io` 上升为统一接口
-- 一批语言语义被收紧或去历史包袱
+- 一批语言语义被收紧或清理历史遗留设计
 - 标准库中层抽象继续被清理
 - 增量编译、链接器、fuzzer、target 支持继续向 1.0 所需形态推进
 
 一句话判断：
 
-**0.16.0 很重要，但不是“稳定收官版”；它更像是面向 1.0 的一次大规模技术债重构。**
+### 一句话判断
+
+0.16.0 很重要，但不是“最终稳定版本”；它更像是面向 1.0 的一次大规模技术债务清理与重构。
 
 ---
 
@@ -39,7 +43,7 @@ Zig 0.16.0 不是普通增量版，而是一次明显的架构收口版本。
 - 开发周期：8 个月
 - 贡献者：244
 - 提交数：1183
-- 官方点名主线：`I/O as an Interface`
+- 官方强调的核心主题：`I/O as an Interface`
 
 ---
 
@@ -50,6 +54,7 @@ Zig 0.16.0 不是普通增量版，而是一次明显的架构收口版本。
 0.16 的最大变化不是某个 builtin，而是 `std.Io`。
 
 影响范围：
+
 - Future
 - Group
 - Cancelation
@@ -63,6 +68,7 @@ Zig 0.16.0 不是普通增量版，而是一次明显的架构收口版本。
 - `std.posix` / `std.os.windows` 清理
 
 工程含义：
+
 - I/O、并发、取消、同步、进程与系统接口开始统一建模
 - 旧式“线程 + 阻塞 + 若干全局状态”的默认路径被逐步弱化
 - 后续 std API 还会继续围绕这条主线重塑
@@ -140,7 +146,7 @@ pub fn build(b: *std.Build) void {
 }
 ```
 
-**链接系统库（如 zstd）的扩展示例：**
+#### 链接系统库（如 zstd）的扩展示例
 
 ```zig
     const translate_c = b.addTranslateC(.{
@@ -228,7 +234,7 @@ pub fn build(b: *std.Build) void {
 }
 ```
 
-**链接系统库（如 zstd）的扩展示例：**
+#### 使用 translate-c package 链接系统库（如 zstd）
 
 ```zig
     const t: Translator = .init(translate_c_dep, .{
@@ -242,6 +248,7 @@ pub fn build(b: *std.Build) void {
 ```
 
 `linkSystemLibrary` 会同时做两件事：
+
 1. 将系统库链接到 `t.mod`（等价于 `t.mod.linkSystemLibrary`）
 2. 通过 `pkg-config` 自动将对应的 include 路径暴露给 translate-c（等价于 `t.run.addArgs(...)`）
 
@@ -277,6 +284,7 @@ pub fn build(b: *std.Build) void {
 `@Type` 被独立的 type-creating builtins 替代。
 
 工程含义：
+
 - 元编程代码需要迁移
 - 语义更直接，可读性和规格化更好
 - 有利于编译器内部类型解析和错误报告
@@ -284,15 +292,18 @@ pub fn build(b: *std.Build) void {
 ### 4. 指针、packed/external 语义继续收紧
 
 典型变化：
+
 - 显式对齐指针类型与自然对齐指针类型不再视为同一类
 - packed union / packed struct 的合法表示被进一步收紧
 - extern context 对隐式 backing type 的容忍度降低
 
 实验验证细节：
+
 - `extern enum(u8) { ... }` 这种语法已被直接禁止（编译器报错：`enums do not support 'packed' or 'extern'; instead provide an explicit integer tag type`）。在 extern struct 中使用带显式 tag type 的 enum 时，应写为 `e: enum(u8) { a, b }`，而不是 `extern enum(u8)`。
 - packed union 中禁止指针字段，但需实际实例化该类型才会触发完整语义分析（错误信息：`packed unions cannot contain fields of type '*u8'`）。
 
 工程含义：
+
 - 一些过去能过编译但语义含混的代码会被拒绝
 - 底层布局代码、FFI、序列化/反序列化代码需要重点复查
 
@@ -301,6 +312,7 @@ pub fn build(b: *std.Build) void {
 官方直接列出 `Simplified Dependency Loop Rules`。
 
 工程含义：
+
 - 类型和声明之间的依赖关系更容易推断
 - 错误更接近真实问题，而不是被旧规则扭曲
 - 一些边界写法可能需要重构
@@ -308,18 +320,21 @@ pub fn build(b: *std.Build) void {
 ### 6. 标准库中层 API 继续被删除或下沉
 
 典型变化：
+
 - `std.posix` / `std.os.windows` 中层抽象继续移除
 - `Thread.Pool` 被删除
 - `heap.ThreadSafeAllocator` 被删除
 - 目录、路径、process、memory protection、容器等 API 有多处重命名或迁移
 
 工程含义：
-- 0.15 代码里最容易爆红的，通常不是语言语法，而是 std API
-- 迁移要先做 API inventory，再做替换
+
+- 0.15 代码里最容易产生编译错误的，通常不是语言语法，而是 std API
+- 迁移要先做 API 盘点，再做替换
 
 ### 7. 编译器与增量编译继续实用化
 
 官方本版专门列出：
+
 - C Translation
 - Reworked Type Resolution
 - Incremental Compilation
@@ -327,6 +342,7 @@ pub fn build(b: *std.Build) void {
 - 改进循环安全检查代码生成
 
 工程含义：
+
 - 0.16 不只是语言/库变化，编译器内部结构也在变
 - 对大项目和编辑-编译循环，这比单个语法特性更重要
 
@@ -335,6 +351,7 @@ pub fn build(b: *std.Build) void {
 官方专门列出 `New ELF Linker`。
 
 工程含义：
+
 - 这是后续增量构建体验的关键部件
 - 但它仍是演进中的能力，不应假设已完全替代旧路径
 
@@ -351,7 +368,7 @@ pub fn build(b: *std.Build) void {
 - 小整数到 float 的 coercion 变化
 - runtime vector index 禁止（仅在真正的 runtime 上下文中触发，如函数参数；test 块内的简单 `var i` 可能被常量传播优化为 comptime-known，从而不报错）
 - vector/array 不再支持 in-memory coercion（主要影响 `@ptrCast` 转换和错误联合类型包裹场景）
-- 返回 trivial local address 被禁止
+- 禁止从函数返回指向局部变量的地址
 - unary float builtins 结果类型传播
 - `@floor/@ceil/@round/@trunc` 到整数的行为变化
 - packed union 未使用位/指针限制
@@ -364,6 +381,7 @@ pub fn build(b: *std.Build) void {
 - zero-bit tuple fields 不再隐式 `comptime`
 
 建议做法：
+
 - 全项目 grep `@Type`
 - 全项目 grep `@cImport`
 - 全项目 grep packed / extern / align / vector 相关低层代码
@@ -376,6 +394,7 @@ pub fn build(b: *std.Build) void {
 ### I/O / 并发 / 系统接口
 
 重点关注：
+
 - `std.Io`
 - `Future`
 - `Group`
@@ -398,11 +417,11 @@ pub fn build(b: *std.Build) void {
 ### 命名/行为类调整
 
 - `Environment Variables and Process Arguments Become Non-Global`
-- `Juicy Main`
+- `Juicy Main`（官方术语，指增强型 main 入口）
 - `mem` 中引入 cut；`index of` 改名为 `find`
 - selective directory tree walking
 - Windows path 行为调整
-- `fs.path.relative` 纯化
+- `fs.path.relative` 变为纯函数（不再访问文件系统）
 - `File.Stat` access time 变为 optional
 - `Current Directory API Renamed`
 - 转向更多 `Unmanaged` 容器
@@ -412,6 +431,17 @@ pub fn build(b: *std.Build) void {
 - 新增 Deflate compression，简化 decompression
 - `std.crypto` 增加 AES-SIV / AES-GCM-SIV
 - `std.crypto` 增加 Ascon-AEAD / Ascon-Hash / Ascon-CHash
+
+---
+
+## 进一步细化的迁移资料
+
+以下内容已经过实验验证，存放在 `references/` 目录中：
+
+- **[API 对照表](references/api-mapping.md)** — 0.15 -> 0.16 常用 API 完整对照，含标准库删除项、Build System API、语言 builtins
+- **[build.zig 迁移要点](references/build-zig-migration.md)** — `addExecutable` / `addModule` / `linkLibC` / `addTest` / `addTranslateC` 的签名变化与验证过的示例
+- **[std.Io 迁移样例](references/std-io-migration.md)** — 文件 I/O、进程、同步原语、时间/随机数的完整迁移代码（含可编译运行的 `std.Io` 示例）
+- **[@Type 替换样例](references/type-builtin-migration.md)** — 8 个新 builtins 的完整对照表和验证通过的测试代码
 
 ---
 
@@ -446,8 +476,8 @@ pub fn build(b: *std.Build) void {
 
 - C Translation
 - LLVM backend
-- byval lowering 重做
-- type resolution 重做
+- byval 参数 lowering 重做
+- 类型解析重做
 - incremental compilation
 - x86 backend
 - aarch64 backend
@@ -482,7 +512,8 @@ pub fn build(b: *std.Build) void {
 - zig cc
 - cross-compiling 时支持动态链接 OpenBSD libc
 
-工程判断：
+工程含义：
+
 - 0.16 对 toolchain 版本和 backend 行为有实质影响
 - 你不能只测“能不能编译”，还要测 codegen、链接、debug info、平台行为
 
@@ -491,6 +522,7 @@ pub fn build(b: *std.Build) void {
 ## Target Support 变化
 
 重点项：
+
 - `aarch64-freebsd`、`aarch64-netbsd`、`loongarch64-linux`、`powerpc64le-linux`、`s390x-linux`、`x86_64-freebsd`、`x86_64-netbsd`、`x86_64-openbsd` 进入原生 CI
 - 新增 `aarch64-maccatalyst` / `x86_64-maccatalyst` 交叉编译支持
 - 新增初始 `loongarch32-linux`
@@ -500,6 +532,7 @@ pub fn build(b: *std.Build) void {
 - 大端与弱序平台上的一批 bug 修复
 
 工程含义：
+
 - 0.16 在 target 覆盖面上继续扩张
 - 但“支持”不等于“所有层都成熟”，仍要看 tier、backend、libc、CI 状态
 
@@ -509,12 +542,13 @@ pub fn build(b: *std.Build) void {
 
 官方在 bug fixes 下明确写了：
 
-**This Release Contains Bugs**
+### This Release Contains Bugs
 
 这意味着：
-- 不能把 0.16 当成“只要过编译就可以无脑上生产”的版本
-- 对非 trivial 项目，升级前要做行为测试、平台测试、性能测试
-- 特别是低层系统接口、并发、链接、debug info、cross target 路径要重点验证
+
+- 不能把 0.16 当成“只要过编译就可以未经充分验证就用于生产环境”的版本
+- 对非小型项目，升级前要做行为测试、平台测试、性能测试
+- 特别是低层系统接口、并发、链接、debug info、交叉编译路径要重点验证
 
 ---
 
@@ -523,6 +557,7 @@ pub fn build(b: *std.Build) void {
 ### 第一阶段：先做静态清点
 
 建议 grep：
+
 - `@Type`
 - `@cImport`
 - `Thread.Pool`
@@ -540,6 +575,7 @@ pub fn build(b: *std.Build) void {
 ### 第二阶段：优先修语言层 breaking changes
 
 先把：
+
 - `@Type`
 - packed/extern/layout
 - pointer alignment
@@ -551,6 +587,7 @@ pub fn build(b: *std.Build) void {
 ### 第三阶段：修 std API 迁移
 
 重点迁移：
+
 - I/O
 - process
 - directory/path
@@ -561,6 +598,7 @@ pub fn build(b: *std.Build) void {
 ### 第四阶段：补行为验证
 
 至少覆盖：
+
 - 文件 I/O
 - 网络 I/O
 - 子进程
@@ -573,6 +611,7 @@ pub fn build(b: *std.Build) void {
 ### 第五阶段：补性能与工具链验证
 
 重点看：
+
 - 增量编译是否变好
 - 新 linker 是否影响你的工作流
 - LLVM 21 与 loop vectorization 禁用是否影响热点代码
@@ -584,21 +623,21 @@ pub fn build(b: *std.Build) void {
 
 可以直接发给团队：
 
-> Zig 0.16.0 的核心不是单个新语法，而是 `std.Io` 驱动的一次架构级调整；语言、标准库、构建系统、编译器、链接器、fuzzer、toolchain 都有明显迁移面。升级收益很大，但 breaking surface 也很大。建议先做 API inventory，再分语言层、std 层、行为层、性能层逐步迁移，不建议直接全量切换生产分支。
+> Zig 0.16.0 的核心不是单个新语法，而是 `std.Io` 驱动的一次架构级调整；语言、标准库、构建系统、编译器、链接器、fuzzer、toolchain 都有明显迁移面。升级收益很大，但不兼容变更面也很大。建议先做 API 盘点，再分语言层、std 层、行为层、性能层逐步迁移，不建议直接全量切换生产分支。
 
 ---
 
-## Source of Truth
+## 参考来源
 
 本 skill 基于 Zig 官方 0.16.0 release notes 与官方下载页整理。
 
 建议把它当作：
+
 - 阅读 release notes 的结构化索引
 - 升级评审 checklist
 - 团队对齐材料
 
 不建议把它当作：
+
 - 精确 API 替换字典
 - 完整迁移手册
-
-
