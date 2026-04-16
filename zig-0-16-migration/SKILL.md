@@ -79,7 +79,7 @@ Zig 0.16.0 不是普通增量版，而是一次明显的架构整合版本。
 
 #### 关键事实
 
-- `@cImport` 已被标记为 **deprecated**，但**尚未移除**，现有代码仍可编译。
+- `@cImport` 已被标记为 **deprecated**，但**尚未移除**，现有代码仍可编译；0.16.0 编译器在使用它时**不会**输出 deprecation warning。
 - 官方方向是：未来 C Translation 完全由 **Build System** / **工具链**处理，而不是语言 builtin。
 - **Zig 编译器本身仍然内置 `zig translate-c` 命令和 `b.addTranslateC` Build Step**，不需要下载任何外部包。
 - 官方 `translate-c` package 是一个**可选的、更上层的封装库**，只在需要额外高级选项时才引入。
@@ -99,8 +99,10 @@ const c = @cImport({
 如果你只是临时想把一个 C 头文件翻译成 Zig，直接运行编译器自带的命令即可，零依赖：
 
 ```bash
-zig translate-c include/mylib.h -o src/mylib.zig
+zig translate-c include/mylib.h > src/mylib.zig
 ```
+
+> 注：`zig translate-c` 子命令不接受 `-o`，也不支持 `-femit-bin=` 重定向文件；输出需通过 shell 重定向捕获。
 
 然后像普通 Zig 文件一样 `@import`：
 
@@ -440,7 +442,8 @@ pub fn build(b: *std.Build) void {
 
 - **[API 对照表](references/api-mapping.md)** — 0.15 -> 0.16 常用 API 完整对照，含标准库删除项、Build System API、语言 builtins
 - **[build.zig 迁移要点](references/build-zig-migration.md)** — `addExecutable` / `addModule` / `linkLibC` / `addTest` / `addTranslateC` 的签名变化与验证过的示例
-- **[std.Io 迁移样例](references/std-io-migration.md)** — 文件 I/O、进程、同步原语、时间/随机数的完整迁移代码（含可编译运行的 `std.Io` 示例）
+- **[std.Io 完整 API 参考](references/std-io-guide.md)** — `std.Io` 全面使用指南，含文件 I/O、进程、同步原语、时间/随机数、并发、取消机制，以及 `async`/`await` 的迁移写法
+- **[跨版本 Breaking Changes 速查](references/zig-break-changes.md)** — 汇总 Zig 0.13 -> 0.16 全部关键 Breaking Changes，附编译器验证结果
 - **[@Type 替换样例](references/type-builtin-migration.md)** — 8 个新 builtins 的完整对照表和验证通过的测试代码
 
 ---

@@ -26,7 +26,7 @@
 | `std.builtin.subsystem` | ❌ Removed | `std.Target.SubSystem` or fields in `std.process.Init` |
 | `std.Thread.ResetEvent` | ⚠️ Migrated | `std.Io.Event` |
 | `std.Thread.WaitGroup` | ⚠️ Migrated | `std.Io.Group` |
-| `std.Thread.Futex` | ⚠️ Migrated | `std.Io.Futex` |
+| `std.Thread.Futex` | ⚠️ Migrated | `std.Io.futexWait` / `std.Io.futexWake` (no direct type replacement) |
 | `std.Thread.Mutex` | ⚠️ Migrated | `std.Io.Mutex` |
 | `std.Thread.Condition` | ⚠️ Migrated | `std.Io.Condition` |
 | `std.Thread.Semaphore` | ⚠️ Migrated | `std.Io.Semaphore` |
@@ -37,7 +37,7 @@
 | `std.crypto.random.bytes` | ⚠️ Migrated | `io.random(&buffer)` |
 | `std.time.Instant` | ⚠️ Migrated | `std.Io.Timestamp` |
 | `std.time.Timer` | ⚠️ Migrated | `std.Io.Timestamp` |
-| `std.time.timestamp` | ⚠️ Migrated | `std.Io.Timestamp.now(io)` |
+| `std.time.timestamp` | ⚠️ Migrated | `std.Io.Timestamp.now(io, .real)` |
 
 ## File System API Mapping
 

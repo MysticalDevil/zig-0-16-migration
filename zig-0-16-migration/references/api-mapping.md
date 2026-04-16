@@ -26,7 +26,7 @@
 | `std.builtin.subsystem` | ❌ 已删除 | `std.Target.SubSystem` 或 `std.process.Init` 相关字段 |
 | `std.Thread.ResetEvent` | ⚠️ 迁移 | `std.Io.Event` |
 | `std.Thread.WaitGroup` | ⚠️ 迁移 | `std.Io.Group` |
-| `std.Thread.Futex` | ⚠️ 迁移 | `std.Io.Futex` |
+| `std.Thread.Futex` | ⚠️ 迁移 | `std.Io.futexWait` / `std.Io.futexWake`（无直接类型替代） |
 | `std.Thread.Mutex` | ⚠️ 迁移 | `std.Io.Mutex` |
 | `std.Thread.Condition` | ⚠️ 迁移 | `std.Io.Condition` |
 | `std.Thread.Semaphore` | ⚠️ 迁移 | `std.Io.Semaphore` |
@@ -37,7 +37,7 @@
 | `std.crypto.random.bytes` | ⚠️ 迁移 | `io.random(&buffer)` |
 | `std.time.Instant` | ⚠️ 迁移 | `std.Io.Timestamp` |
 | `std.time.Timer` | ⚠️ 迁移 | `std.Io.Timestamp` |
-| `std.time.timestamp` | ⚠️ 迁移 | `std.Io.Timestamp.now(io)` |
+| `std.time.timestamp` | ⚠️ 迁移 | `std.Io.Timestamp.now(io, .real)` |
 
 ## 文件系统 API 详细对照
 

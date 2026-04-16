@@ -79,7 +79,7 @@ Engineering implications:
 
 #### Key Facts
 
-- `@cImport` is marked as **deprecated** but **not yet removed**; existing code still compiles.
+- `@cImport` is marked as **deprecated** but **not yet removed**; existing code still compiles, and the 0.16.0 compiler does **not** emit a deprecation warning when using it.
 - The official direction is: future C Translation will be handled entirely by the **Build System** / **toolchain**, not by a language builtin.
 - **The Zig compiler still has `zig translate-c` and `b.addTranslateC` built in**; no external package is required.
 - The official `translate-c` package is an **optional, higher-level wrapper**; use it only when you need advanced options.
@@ -99,8 +99,10 @@ const c = @cImport({
 If you just want to translate a C header to Zig temporarily, run the built-in compiler command directly with zero dependencies:
 
 ```bash
-zig translate-c include/mylib.h -o src/mylib.zig
+zig translate-c include/mylib.h > src/mylib.zig
 ```
+
+> Note: the `zig translate-c` subcommand does not accept `-o` and does not support `-femit-bin=` for file redirection; capture output via shell redirection instead.
 
 Then import it like a normal Zig file:
 
@@ -448,7 +450,8 @@ The following experimentally verified materials are available in the `references
 
 - **[API Mapping Table](references/api-mapping.md)** — Complete 0.15 -> 0.16 API mapping, including std removals, Build System APIs, and language builtins
 - **[build.zig Migration Highlights](references/build-zig-migration.md)** — Signature changes and verified examples for `addExecutable`, `addModule`, `linkLibC`, `addTest`, and `addTranslateC`
-- **[std.Io Migration Examples](references/std-io-migration.md)** — Full migration code for file I/O, process, sync primitives, time/random (includes compilable `std.Io` examples)
+- **[std.Io Complete API Reference](references/std-io-guide.md)** — Comprehensive `std.Io` guide covering file I/O, process, sync primitives, time/random, concurrency, cancellation, and `async`/`await` migration patterns
+- **[Cross-Version Breaking Changes Quick Reference](references/zig-break-changes.md)** — Compilation of all key Zig 0.13 -> 0.16 breaking changes with compiler verification results
 - **[@Type Replacement Examples](references/type-builtin-migration.md)** — Complete mapping table for the 8 new builtins with verified test code
 
 ---
